@@ -8,6 +8,7 @@ import pandas as pd
 driver = webdriver.Chrome()
 
 drug_groups = []
+group_title = []
 
 driver.get("https://www.darooyab.ir/DrugGroups")
 
@@ -21,13 +22,15 @@ for medicine in driver.find_elements(By.XPATH, "//a[@class='ahref_Generic']"):
     if medicine.find_elements(By.TAG_NAME, "span"):
         href = medicine.get_attribute("href")
         drug_groups.append(href)
+        group_title.append(medicine.text)
 
 
 # writing all drug names both in farsi and english to csv files
-for group in drug_groups:
+for i,group in enumerate(drug_groups):
     driver.get(group)
 
     medicines = []
+    medicines.append(group_title[i])
 
     WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.XPATH, "//a[@class='ahref_Generic']"))
@@ -46,4 +49,4 @@ for group in drug_groups:
     file_id = group.rstrip("/").split("/")[-1]
     filename = f"medicines_{file_id}.csv"
     df = pd.DataFrame(medicines)
-    df.to_csv(filename, index=False)
+    df.to_csv(filename, index=False, header=False)
